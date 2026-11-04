@@ -1,0 +1,468 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevOps Store</title>
+
+  <style>
+    :root {
+      --red: #dc2626;
+      --red-dark: #991b1b;
+      --red-light: #fee2e2;
+      --bg: #fff7f7;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #fecaca;
+      --green: #15803d;
+      --orange: #c2410c;
+      --blue: #1d4ed8;
+      --purple: #7e22ce;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--red-dark), var(--red), #f87171);
+      color: white;
+      padding: 28px 7%;
+      box-shadow: 0 4px 16px #991b1b30;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 1.7rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .logo span {
+      color: #fecaca;
+    }
+
+    .nav-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .hero {
+      padding: 48px 7% 42px;
+      background: linear-gradient(180deg, #fee2e2, var(--bg));
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: white;
+      color: var(--red-dark);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      max-width: 750px;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span {
+      color: var(--red);
+    }
+
+    .hero p {
+      max-width: 650px;
+      color: #7f1d1d;
+      font-size: 1.05rem;
+    }
+
+    main {
+      padding: 30px 7% 60px;
+    }
+
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .section-heading h2 {
+      font-size: 1.7rem;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 5px 18px #991b1b0b;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 25px #991b1b18;
+    }
+
+    .product-icon {
+      height: 90px;
+      display: grid;
+      place-items: center;
+      background: var(--red-light);
+      border-radius: 12px;
+      font-size: 2.7rem;
+      margin-bottom: 16px;
+    }
+
+    .category {
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.7rem;
+      font-weight: 800;
+    }
+
+    .card h3 {
+      margin: 5px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    .description {
+      color: var(--muted);
+      font-size: 0.85rem;
+      min-height: 42px;
+    }
+
+    .price {
+      color: var(--red-dark);
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-top: 12px;
+    }
+
+    .review-card {
+      border-left: 4px solid var(--red);
+    }
+
+    .stars {
+      color: #f59e0b;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .review-comment {
+      color: #4b5563;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+    }
+
+    .reviewer {
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .review-product {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .status-delivered {
+      background: #dcfce7;
+      color: var(--green);
+    }
+
+    .status-processing {
+      background: #ffedd5;
+      color: var(--orange);
+    }
+
+    .status-shipped {
+      background: #dbeafe;
+      color: var(--blue);
+    }
+
+    .status-pending {
+      background: #f3e8ff;
+      color: var(--purple);
+    }
+
+    .status-cancelled {
+      background: #fee2e2;
+      color: var(--red-dark);
+    }
+
+    .status-returned {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .order-id {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .order-name {
+      font-weight: 700;
+      margin: 6px 0;
+    }
+
+    .order-details {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    footer {
+      background: #450a0a;
+      color: #fecaca;
+      text-align: center;
+      padding: 24px 7%;
+      font-size: 0.85rem;
+    }
+
+    footer strong {
+      color: white;
+    }
+
+    .error {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      color: var(--red-dark);
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 22px 5%;
+      }
+
+      .hero,
+      main {
+        padding-left: 5%;
+        padding-right: 5%;
+      }
+
+      .section-heading h2 {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="nav">
+      <div class="logo">DEVOPS<span>STORE</span></div>
+      <div class="nav-label">Cloud-powered shopping experience</div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-tag">⚡ BUILT FOR PERFORMANCE</div>
+    <h1>Technology that moves <span>you forward.</span></h1>
+    <p>
+      Discover your next favorite gadget. Browse products, read customer
+      reviews, and track your orders—all powered by our cloud-native platform.
+    </p>
+  </section>
+
+  <main>
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <h2>Featured Products</h2>
+          <p>Explore our latest tech essentials</p>
+        </div>
+      </div>
+      <div id="products" class="grid">
+        <p>Loading products...</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <h2>Customer Reviews</h2>
+          <p>Real feedback from our customers</p>
+        </div>
+      </div>
+      <div id="reviews" class="grid">
+        <p>Loading reviews...</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <h2>Order Tracking</h2>
+          <p>See the latest status of customer orders</p>
+        </div>
+      </div>
+      <div id="orders" class="grid">
+        <p>Loading orders...</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>DevOps Store</strong> · Powered by Kubernetes, AWS EKS & CI/CD
+  </footer>
+
+  <script>
+    const API = {
+      products: "/api/products",
+      reviews: "/api/reviews",
+      orders: "/api/orders"
+    };
+
+    const statusClass = {
+      Delivered: "status-delivered",
+      Processing: "status-processing",
+      Shipped: "status-shipped",
+      Pending: "status-pending",
+      Cancelled: "status-cancelled",
+      Returned: "status-returned"
+    };
+
+    async function fetchData(url) {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+
+      return response.json();
+    }
+
+    function showError(elementId, message) {
+      document.getElementById(elementId).innerHTML =
+        `<div class="error">${message}</div>`;
+    }
+
+    async function loadProducts() {
+      try {
+        const products = await fetchData(API.products);
+        const container = document.getElementById("products");
+
+        container.innerHTML = products.map(product => `
+          <article class="card">
+            <div class="product-icon">🛍️</div>
+            <div class="category">${product.category || "Technology"}</div>
+            <h3>${product.name}</h3>
+            <p class="description">${product.description || "Quality tech for everyday use."}</p>
+            <div class="price">₹${Number(product.price).toLocaleString("en-IN")}</div>
+          </article>
+        `).join("");
+      } catch (error) {
+        showError("products", "Unable to load products. Please try again later.");
+        console.error(error);
+      }
+    }
+
+    async function loadReviews() {
+      try {
+        const reviews = await fetchData(API.reviews);
+        const container = document.getElementById("reviews");
+
+        container.innerHTML = reviews.map(review => {
+          const rating = Math.max(0, Math.min(5, Number(review.rating) || 0));
+
+          return `
+            <article class="card review-card">
+              <div class="stars">${"★".repeat(rating)}${"☆".repeat(5 - rating)}</div>
+              <p class="review-comment">“${review.comment}”</p>
+              <div class="reviewer">${review.reviewer_name}</div>
+              <div class="review-product">${review.product_name}</div>
+            </article>
+          `;
+        }).join("");
+      } catch (error) {
+        showError("reviews", "Unable to load reviews. Please try again later.");
+        console.error(error);
+      }
+    }
+
+    async function loadOrders() {
+      try {
+        const orders = await fetchData(API.orders);
+        const container = document.getElementById("orders");
+
+        container.innerHTML = orders.map(order => {
+          const status = order.status || "Pending";
+          const badgeClass = statusClass[status] || "status-pending";
+
+          return `
+            <article class="card">
+              <span class="status ${badgeClass}">${status}</span>
+              <div class="order-id">Order #${order.id}</div>
+              <div class="order-name">${order.product_name}</div>
+              <div class="order-details">
+                Customer: ${order.customer_name || order.customer || "Customer"}<br>
+                Quantity: ${order.quantity || 1}
+              </div>
+            </article>
+          `;
+        }).join("");
+      } catch (error) {
+        showError("orders", "Unable to load orders. Please try again later.");
+        console.error(error);
+      }
+    }
+
+    loadProducts();
+    loadReviews();
+    loadOrders();
+  </script>
+</body>
+</html>
+```

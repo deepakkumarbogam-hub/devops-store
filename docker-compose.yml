@@ -1,0 +1,71 @@
+services:
+  database:
+    image: postgres:17
+    container_name: devops-store-db
+    environment:
+      POSTGRES_DB: devops_store
+      POSTGRES_USER: storeuser
+      POSTGRES_PASSWORD: storepass123
+    ports:
+      - "5432:5432"
+    volumes:
+      - devops-store-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U storeuser -d devops_store"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  product-service:
+    image: devops-store-product:v1
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://database:5432/devops_store
+      DB_USERNAME: storeuser
+      DB_PASSWORD: storepass123
+      JAVA_TOOL_OPTIONS: -Duser.timezone=Asia/Kolkata
+    depends_on:
+      database:
+        condition: service_healthy
+
+  review-service:
+    image: devops-store-review:v1
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: devops_store
+      DB_USER: storeuser
+      DB_PASSWORD: storepass123
+    depends_on:
+      database:
+        condition: service_healthy
+
+  order-service:
+    image: devops-store-order:v1
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: devops_store
+      DB_USER: storeuser
+      DB_PASSWORD: storepass123
+    depends_on:
+      database:
+        condition: service_healthy
+
+  frontend:
+    image: devops-store-frontend:v1
+    ports:
+      - "5500:80"
+    depends_on:
+      - product-service
+      - review-service
+      - order-service
+
+volumes:
+  devops-store-db-data:
+    external: true
