@@ -1,4 +1,4 @@
-name: Build and Deploy Frontend to EKS
+name: DevOps Store Frontend CI/CD
 
 on:
   push:
@@ -8,33 +8,40 @@ on:
       - "frontend/**"
       - ".github/workflows/frontend-deploy.yml"
 
+  workflow_dispatch:
+
 permissions:
   id-token: write
   contents: read
 
 env:
   AWS_REGION: us-east-1
-  EKS_CLUSTER_NAME: devops-store-eks
   ECR_REPOSITORY: devops-store-frontend
-  K8S_DEPLOYMENT: frontend
-  K8S_CONTAINER: frontend
+  EKS_CLUSTER_NAME: devops-store-eks
+  K8S_DEPLOYMENT_NAME: frontend
+  K8S_CONTAINER_NAME: frontend
 
 jobs:
   deploy:
-    name: Build, Push, and Deploy
+    name: Build, Push, and Deploy Frontend
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Download repository code
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Show GitHub OIDC identity
+
+      # 2. Print GitHub repository and branch information
+      - name: Print GitHub identity
         run: |
           echo "Repository: $GITHUB_REPOSITORY"
           echo "Ref: $GITHUB_REF"
           echo "Expected subject: repo:$GITHUB_REPOSITORY:ref:$GITHUB_REF"
-            - name: Diagnose GitHub OIDC claims
-          uses: actions/github-script@v7
-          with:
+
+      # 3. Diagnose the OIDC token claims without printing the token
+      - name: Diagnose GitHub OIDC claims
+        uses: actions/github-script@v7
+        with:
           script: |
             const response = await fetch(
               `${process.env.ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com`,
@@ -58,19 +65,29 @@ jobs:
             core.info(`OIDC issuer: ${payload.iss}`);
             core.info(`OIDC audience: ${payload.aud}`);
             core.info(`OIDC subject: ${payload.sub}`);
+
+      # 4. Authenticate to AWS using GitHub OIDC
       - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GitHubActionsDevOpsStore
 
+      # 5. Verify AWS authentication
+      - name: Verify AWS identity
+        run: |
+          aws sts get-caller-identity
+
+      # 6. Authenticate Docker to Amazon ECR
       - name: Login to Amazon ECR
-        id: ecr-login
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # 7. Build and push the frontend image
       - name: Build and push frontend image
         env:
-          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
@@ -80,18 +97,30 @@ jobs:
           docker push \
             $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Configure kubectl for EKS
+      # 8. Connect kubectl to the EKS cluster
+      - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig \
             --region $AWS_REGION \
             --name $EKS_CLUSTER_NAME
 
+      # 9. Deploy the new image to Kubernetes
       - name: Deploy frontend to EKS
         env:
-          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          kubectl set image deployment/$K8S_DEPLOYMENT \
-            $K8S_CONTAINER=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          kubectl set image deployment/$K8S_DEPLOYMENT_NAME \
+            $K8S_CONTAINER_NAME=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-          kubectl rollout status deployment/$K8S_DEPLOYMENT --timeout=180s
+      # 10. Wait for Kubernetes rollout to finish
+      - name: Verify deployment rollout
+        run: |
+          kubectl rollout status deployment/$K8S_DEPLOYMENT_NAME \
+            --timeout=180s
+
+      # 11. Display final deployment status
+      - name: Show deployment status
+        run: |
+          kubectl get deployment $K8S_DEPLOYMENT_NAME
+          kubectl get pods -o wide
