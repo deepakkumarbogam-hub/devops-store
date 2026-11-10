@@ -12,9 +12,28 @@ spec:
       labels:
         app: product-service
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: tmp
+          emptyDir: {}
       containers:
         - name: product-service
-          image: 143710972226.dkr.ecr.us-east-1.amazonaws.com/devops-store-product:v1
+          image: dbogam/product:v2
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           ports:
             - containerPort: 8080
           env:
@@ -26,6 +45,7 @@ spec:
               value: storepass123
             - name: JAVA_TOOL_OPTIONS
               value: -Duser.timezone=Asia/Kolkata
+
 ---
 apiVersion: v1
 kind: Service
@@ -38,6 +58,7 @@ spec:
     - port: 8080
       targetPort: 8080
   type: ClusterIP
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -53,9 +74,28 @@ spec:
       labels:
         app: review-service
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: tmp
+          emptyDir: {}
       containers:
         - name: review-service
-          image: 143710972226.dkr.ecr.us-east-1.amazonaws.com/devops-store-review:v1
+          image: dbogam/review:v8
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            runAsUser: 100
+            runAsGroup: 101
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           ports:
             - containerPort: 5000
           env:
@@ -69,6 +109,7 @@ spec:
               value: storeuser
             - name: DB_PASSWORD
               value: storepass123
+
 ---
 apiVersion: v1
 kind: Service
@@ -81,6 +122,7 @@ spec:
     - port: 5000
       targetPort: 5000
   type: ClusterIP
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -96,9 +138,28 @@ spec:
       labels:
         app: order-service
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: tmp
+          emptyDir: {}
       containers:
         - name: order-service
-          image: 143710972226.dkr.ecr.us-east-1.amazonaws.com/devops-store-order:v1
+          image: dbogam/order:v2
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           ports:
             - containerPort: 3000
           env:
@@ -112,6 +173,7 @@ spec:
               value: storeuser
             - name: DB_PASSWORD
               value: storepass123
+
 ---
 apiVersion: v1
 kind: Service

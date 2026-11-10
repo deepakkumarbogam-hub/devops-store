@@ -1,14 +1,4 @@
 apiVersion: v1
-kind: Secret
-metadata:
-  name: postgres-secret
-type: Opaque
-stringData:
-  POSTGRES_USER: storeuser
-  POSTGRES_PASSWORD: storepass123
-  POSTGRES_DB: devops_store
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
@@ -19,6 +9,7 @@ spec:
   resources:
     requests:
       storage: 5Gi
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -34,9 +25,15 @@ spec:
       labels:
         app: postgres
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: postgres
           image: postgres:17
+          securityContext:
+            allowPrivilegeEscalation: false
           ports:
             - containerPort: 5432
           env:
@@ -56,13 +53,14 @@ spec:
                   name: postgres-secret
                   key: POSTGRES_DB
           volumeMounts:
-          - name: postgres-storage
-            mountPath: /var/lib/postgresql/data
-            subPath: pgdata
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+              subPath: pgdata
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:
             claimName: postgres-pvc
+
 ---
 apiVersion: v1
 kind: Service
