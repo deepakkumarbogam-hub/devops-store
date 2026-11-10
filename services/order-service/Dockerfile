@@ -6,7 +6,9 @@ COPY package*.json ./
 
 RUN npm ci --omit=dev
 
-COPY app.js .
+COPY --chown=node:node app.js .
+
+USER node
 
 EXPOSE 3000
 

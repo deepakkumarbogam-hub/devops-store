@@ -15,9 +15,13 @@ RUN apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev \
               /usr/local/bin/pip3 \
               /usr/local/bin/pip3.14
 
-RUN apk add --no-cache libpq
+RUN apk add --no-cache libpq \
+    && addgroup -S appgroup \
+    && adduser -S appuser -G appgroup
 
-COPY app.py .
+COPY --chown=appuser:appgroup app.py .
+
+USER appuser
 
 EXPOSE 5000
 
