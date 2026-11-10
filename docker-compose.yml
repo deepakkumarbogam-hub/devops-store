@@ -26,7 +26,7 @@ services:
         condition: service_healthy
 
   review-service:
-    image: dbogam/review:v2
+    image: dbogam/review:v7
     environment:
       DB_HOST: database
       DB_PORT: 5432
